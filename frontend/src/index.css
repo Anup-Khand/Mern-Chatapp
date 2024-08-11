@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  list-style: none;
+  scroll-behavior: smooth;
+}
+@property --rotate {
+  syntax: "<angle>";
+  initial-value: 132deg;
+  inherits: false;
+}
+
+:root {
+  --card-height: 65vh;
+  --card-width: calc(var(--card-height) / 1.5);
+}
+img {
+  max-width: 100%;
+}
+.card {
+  @apply flex flex-col gap-10 w-[50rem] h-[30rem] bg-neutral-900 rounded-lg border border-neutral-600 p-8 max-sm:h-screen;
+}
+@layer utilities {
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* .scrollbar-custom::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  } */
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+    /* border: 3px solid #f1f1f1; */
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+@layer components {
+  @keyframes gradient-border {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .button-wrapper {
+    background: linear-gradient(270deg, #5ddcff, #3c67e3, #4e00c2, #c2003a);
+    background-size: 600% 600%;
+    border-radius: 8px; /* Adjust as needed */
+    padding: 3px; /* Adjust as needed */
+    animation: gradient-border 5s ease infinite;
+  }
+  .button-wrapper-inner {
+    /* Adjust as needed */
+    border-radius: 6px; /* Slightly smaller than the outer border radius */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* .gradient::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  border-radius: 0.75rem;
+  translate: -50% -50%;
+  background-color: red;
+} */
+
+
+/* .Sidebar{
+  @apply max-md:fixed max-md:p-1 max-md:w-[80%] max-md:top-[90%] max-md:justify-center max-md:gap-4 max-md:rounded-lg max-md:left-2/4 z-50 max-md:-translate-x-2/4 max-md:-translate-y-2/4  backdrop-blur-sm bg-glass-light border border-glass-light shadow-lg
+} */
+
+
+/* custom-styles.css */
+@media not all and (min-width: 768px) {
+  .max-md-styles {
+    @apply fixed  p-1 w-[80%] top-[90%] justify-center gap-4 rounded-lg left-2/4 z-50 -translate-x-2/4 -translate-y-2/4 backdrop-blur-sm bg-glass-light border border-glass-light shadow-lg;
+  }
+}
