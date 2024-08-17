@@ -24,6 +24,23 @@ export const fetchSearchUser = createAsyncThunk(
   }
 );
 
+export const fetchRequestSearchUser = createAsyncThunk(
+  "search/fetchRequestSearchUser",
+  async (query) => {
+    // const token = getState().auth.user;
+    // console.log(token);
+    try {
+      const response = await apiClient.post("/api/auth/getrequestsearchusers", {
+        query: query,
+      });
+      console.log(response?.data);
+      return response?.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const clearSearchResults = createAction("search/clearSearchResults");
 
 const SearchUserSlice = createSlice({
@@ -44,6 +61,18 @@ const SearchUserSlice = createSlice({
         state.data = action.payload;
       })
       .addCase(fetchSearchUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+        toast.error(`Failed to fetch data: ${action.payload}`);
+      })
+      .addCase(fetchRequestSearchUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchRequestSearchUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.data = action.payload;
+      })
+      .addCase(fetchRequestSearchUser.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
         toast.error(`Failed to fetch data: ${action.payload}`);

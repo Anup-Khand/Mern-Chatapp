@@ -97,7 +97,7 @@ const getFriendIds = async (userId) => {
 module.exports.getAllUsersExceptFriends = async (req, res) => {
   const userId = req.user._id;
   const friendIds = await getFriendIds(userId);
-  console.log(friendIds);
+  // console.log(friendIds);
   const users = await User.find({
     _id: { $nin: [...friendIds, userId] }, // Exclude friends and the user itself
   });
@@ -183,7 +183,7 @@ module.exports.getallfriendrequest = async (req, res) => {
       ...req.memberDetails,
       status: req.status,
     }));
-
+console.log(formattedRequests)
     res.status(200).json(formattedRequests);
   } catch (err) {
     console.error(err);
@@ -219,3 +219,8 @@ module.exports.AcceptRequest = async (req, res) => {
       .json({ error: "An error occurred while accepting the request" });
   }
 };
+
+module.exports.getPendingRequest = async (req, res) => {
+  const userId = req.user._id
+
+}

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import ChatCard from "./ChatCard";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useDebounce from "../hooks/useDebounce";
 
-import { clearSearchResults } from "../redux/SearchUserSlice";
+import { clearSearchResults, fetchRequestSearchUser } from "../redux/SearchUserSlice";
 
 import {
   ArrowLeftIcon,
@@ -21,7 +21,7 @@ const AddFriend = ({ data }) => {
   useEffect(() => {
     if (debouncedQuery) {
       // API call or search function here
-      //  dispatch(fetchSearchUser(debouncedQuery));
+       dispatch(fetchRequestSearchUser(debouncedQuery));
       console.log("Searching for:", debouncedQuery);
     } else {
       dispatch(clearSearchResults());
@@ -30,6 +30,9 @@ const AddFriend = ({ data }) => {
       dispatch(clearSearchResults());
     };
   }, [debouncedQuery, dispatch]);
+
+  const { data: data1 } = useSelector((state) => state.searchuser)
+  console.log(data1)
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -43,7 +46,7 @@ const AddFriend = ({ data }) => {
     setQuery("");
   };
   return (
-    <div className="p-2  flex flex-col">
+    <div className="p-2  flex flex-col flex-auto h-[80%]">
       <div className="flex w-full items-center mb-4 gap-2">
         {focus && (
           <div>
@@ -75,9 +78,9 @@ const AddFriend = ({ data }) => {
         </div>
       </div>
       <hr className=" text-red-500 border border-solid border-black" />
-      <div className=" flex-auto overflow-y-scroll scrollbar-custom p-2 bg-black -mr-1 ">
+      <div className=" flex-auto overflow-y-scroll scrollbar-custom p-2  -mr-1 ">
         {!focus ? (
-          <div className="flex h-full flex-col gap-2">
+          <div className="flex flex-col gap-2">
             {data?.map((item) => (
               <ChatCard key={item?._id} data={item} request />
             ))}
@@ -93,9 +96,9 @@ const AddFriend = ({ data }) => {
           </div>
         ) : (
           <div className="flex h-full flex-col gap-2">
-            {/* {data?.map((item, index) => (
-                    <ChatCard key={index} data={item} />
-                  ))} */}
+            {data1?.map((item, index) => (
+                    <ChatCard key={index} data={item} request/>
+                  ))}
           </div>
         )}
       </div>

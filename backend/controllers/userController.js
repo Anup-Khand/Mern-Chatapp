@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const ChatModel = require("../models/ChatModel");
 
 // create json web token
 
@@ -92,6 +93,45 @@ module.exports.getSearchUsers = async (req, res) => {
         { lastname: { $regex: query, $options: "i" } },
       ],
     }).find({ _id: { $ne: req.user._id } });
+    res.status(200).json(users);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const getFriendIds = async (userId) => {
+  const chats = await ChatModel.find({
+    members: userId,
+    status: "accepted",
+  });
+
+  const friendIds = new Set();
+  chats.forEach((chat) => {
+    chat.members.forEach((memberId) => {
+      if (memberId.toString() !== userId?.toString()) {
+        friendIds.add(memberId.toString());
+      }
+    });
+  });
+  return Array.from(friendIds);
+};
+
+module.exports.getRequestSearchUser = async (req, res) => {
+  const { query } = req.body;
+  const userId = req.user._id;
+  try {
+    const friendIds = await getFriendIds(userId);
+    const users = await User.find({
+      $or: [
+        { firstname: { $regex: query, $options: "i" } },
+        { lastname: { $regex: query, $options: "i" } },
+      ],
+    }).find({ _id: { $nin: [...friendIds, userId] } });
+
+    // console.log(friendIds);
+    // const users = await searchedusers.find({
+    //   _id: { $nin: [...friendIds, userId] }, // Exclude friends and the user itself
+    // });
     res.status(200).json(users);
   } catch (err) {
     console.log(err);

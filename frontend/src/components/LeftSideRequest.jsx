@@ -16,17 +16,16 @@ import FriendRequest from "./FriendRequest";
 import AddFriend from "./AddFriend";
 
 const LeftSideRequest = () => {
-const dispatch = useDispatch();
+  const dispatch = useDispatch();
   // useEffect(() => {
   //   dispatch(fetchUserChat());
   // }, [dispatch]);
-
 
   useEffect(() => {
     dispatch(allUser());
   }, [dispatch]);
   const { data } = useSelector((state) => state.friend);
-  console.log(data);
+  // console.log(data);
 
   const [value, setValue] = useState("1");
 
@@ -35,7 +34,7 @@ const dispatch = useDispatch();
   };
 
   return (
-    <div className=" bg-slate-200 h-screen w-full sm:h-[95vh] sm:w-[22rem] sm:mt-4 sm:rounded-xl p-2 flex flex-col ">
+    <div className=" bg-slate-200 h-screen w-full sm:h-[95vh] md:mt-4 sm:rounded-xl p-2 flex flex-col ">
       {/* <Box sx={{ width: "100%",height:"auto", typography: "body1" }}> */}
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -48,24 +47,27 @@ const dispatch = useDispatch();
             <Tab label="Friend Requests" value="2" />
           </TabList>
         </Box>
-        <div
-          className={`flex-auto bg-red-400 p-2 ${
+
+        {/* <div
+          className={`bg-red-400 flex flex-col flex-auto p-1 ${
             value == 1 ? "" : "hidden"
           } scrollbar-custom`}
           value="1"
         >
           <AddFriend data={data} />
-        </div>
+        </div> */}
 
-        <div
+        {/* <div
           className={`flex-auto overflow-y-scroll ${
             value == 2 ? "" : "hidden"
           }  scrollbar-custom`}
           value="2"
         >
           <FriendRequest />
-        </div>
+        </div> */}
       </TabContext>
+      {value == 1 && <AddFriend data={data} />}
+      {value == 2 && <FriendRequest />}
     </div>
   );
 };

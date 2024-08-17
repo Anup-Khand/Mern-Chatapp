@@ -27,7 +27,7 @@ const MessageContent = () => {
 
   const { user } = useSelector((state) => state.auth);
   const { chatId } = useSelector((state) => state.value);
-  const { messages } = useSelector((state) => state.message);
+  const { messages } = useSelector((state) => state.message) || {};
 
    const { showScrollButton, scrollToBottom } =
      useScrollToBottom(chatContainerRef);
