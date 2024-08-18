@@ -95,14 +95,87 @@ const getFriendIds = async (userId) => {
 };
 
 module.exports.getAllUsersExceptFriends = async (req, res) => {
-  const userId = req.user._id;
-  const friendIds = await getFriendIds(userId);
-  // console.log(friendIds);
-  const users = await User.find({
-    _id: { $nin: [...friendIds, userId] }, // Exclude friends and the user itself
-  });
+  // const userId = req.user._id;
+  // const friendIds = await getFriendIds(userId);
+  // // console.log(friendIds);
+  // const users = await User.find({
+  //   _id: { $nin: [...friendIds, userId] }, // Exclude friends and the user itself
+  // });
 
-  res.status(200).json(users);
+  // res.status(200).json(users);
+
+  try {
+    const userId = req.user._id;
+
+    // Step 1: Get the IDs of the user's friends
+    const friendIds = await getFriendIds(userId);
+    console.log(friendIds)
+
+    // Step 2: Aggregate the chat status of all users except friends and the user itself
+    const usersWithChatStatus = await User.aggregate([
+      {
+        $match: {
+          _id: { $nin: [...friendIds, userId] },
+          // Exclude friends and the user itself
+        },
+      },
+      {
+        $lookup: {
+          from: "chats", // Collection name of ChatModel
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $in: ["$$userId", "$members"] }, // Ensure the user is a member of the chat
+                    { $in: [userId, "$members"] },
+                    { $ne: ["$status", "accepted"] }, // Ensure the logged-in user is also a member
+                  ],
+                },
+
+              },
+            },
+            {
+              $project: {
+                status: 1,
+                latestMessage: 1,
+              },
+            },
+          ],
+          as: "chatStatus",
+        },
+      },
+      {
+        $unwind: {
+          path: "$chatStatus",
+          preserveNullAndEmptyArrays: false, // Preserve users with no chat status
+        },
+      },
+      // {
+      //   $match: {
+      //     chatStatus: { $ne: "accepted" }, // Exclude users with any accepted chat
+      //   },
+      // },
+      {
+        $project: {
+          _id: 1,
+          firstname: 1,
+          lastname: 1,
+          avatarImage: 1, // Assuming the User model has a name field
+          chatStatus: {
+            $ifNull: ["$chatStatus.status", "no chat"], // Default to "no chat" if there's no chat status
+          },
+        },
+      },
+    ]);
+
+    // Step 3: Return the result
+    res.status(200).json(usersWithChatStatus);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 module.exports.SendRequest = async (req, res) => {

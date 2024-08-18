@@ -9,7 +9,7 @@ import ImageAvatar, { MessageImageAvatar } from "./ImageAvatar";
 /* eslint-disable react/prop-types */
 const ChatCard = ({ data, request, accept, message, onClick, className }) => {
   const dispatch = useDispatch();
-  // console.log({data});
+  console.log(data);
   const gap = "6px";
   const radius = "14px";
   const imgRadius = `calc(${radius} - ${gap})`;
@@ -65,7 +65,7 @@ const ChatCard = ({ data, request, accept, message, onClick, className }) => {
           className="bg-sky-400 p-1 text-sm rounded-md cursor md:absolute right-1 shadow-md shadow-sky-300  "
         >
           <span className=" font-bold">
-            {data?.status == "pending" ? "Pending..." : "Send Request"}
+            {data?.chatStatus == "pending" ? "Pending..." : "Send Request"}
           </span>
         </div>
       )}
