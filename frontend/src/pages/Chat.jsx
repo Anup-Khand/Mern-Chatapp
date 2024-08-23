@@ -13,7 +13,6 @@ import ReusablePopOver from "../components/ResuablePopOver";
 import RightSideChat from "../components/RightSideChat";
 import { MessageImageAvatar } from "../components/ImageAvatar";
 
-
 const Chat = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,6 +32,9 @@ const Chat = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    if (!isAuthenticated) {
+      navigate("/signin");
+    }
   };
   return (
     <div className="md:grid md:grid-cols-[1fr_3.5fr_7fr] h-screen relative ">

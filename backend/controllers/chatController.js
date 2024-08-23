@@ -109,7 +109,7 @@ module.exports.getAllUsersExceptFriends = async (req, res) => {
 
     // Step 1: Get the IDs of the user's friends
     const friendIds = await getFriendIds(userId);
-    console.log(friendIds)
+    console.log(friendIds);
 
     // Step 2: Aggregate the chat status of all users except friends and the user itself
     const usersWithChatStatus = await User.aggregate([
@@ -133,7 +133,6 @@ module.exports.getAllUsersExceptFriends = async (req, res) => {
                     { $ne: ["$status", "accepted"] }, // Ensure the logged-in user is also a member
                   ],
                 },
-
               },
             },
             {
@@ -152,11 +151,6 @@ module.exports.getAllUsersExceptFriends = async (req, res) => {
           preserveNullAndEmptyArrays: false, // Preserve users with no chat status
         },
       },
-      // {
-      //   $match: {
-      //     chatStatus: { $ne: "accepted" }, // Exclude users with any accepted chat
-      //   },
-      // },
       {
         $project: {
           _id: 1,
@@ -171,6 +165,7 @@ module.exports.getAllUsersExceptFriends = async (req, res) => {
     ]);
 
     // Step 3: Return the result
+    console.log(usersWithChatStatus);
     res.status(200).json(usersWithChatStatus);
   } catch (error) {
     console.error(error);
@@ -256,7 +251,7 @@ module.exports.getallfriendrequest = async (req, res) => {
       ...req.memberDetails,
       status: req.status,
     }));
-console.log(formattedRequests)
+    console.log(formattedRequests);
     res.status(200).json(formattedRequests);
   } catch (err) {
     console.error(err);
@@ -294,6 +289,5 @@ module.exports.AcceptRequest = async (req, res) => {
 };
 
 module.exports.getPendingRequest = async (req, res) => {
-  const userId = req.user._id
-
-}
+  const userId = req.user._id;
+};

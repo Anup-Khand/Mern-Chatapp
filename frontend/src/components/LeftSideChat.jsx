@@ -49,7 +49,7 @@ const LeftSideChat = () => {
   };
 
   const handleChat = (id) => {
-    console.log(id);
+    // console.log(id);
     dispatch(setValue(id));
     dispatch(setOpen(false))
   };

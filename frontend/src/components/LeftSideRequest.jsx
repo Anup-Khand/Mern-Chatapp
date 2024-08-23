@@ -24,7 +24,7 @@ const LeftSideRequest = () => {
   useEffect(() => {
     dispatch(allUser());
   }, [dispatch]);
-  const { data } = useSelector((state) => state.friend);
+  const { data } = useSelector((state) => state.friend) || {};
   // console.log(data);
 
   const [value, setValue] = useState("1");

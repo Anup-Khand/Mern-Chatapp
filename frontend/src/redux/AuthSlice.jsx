@@ -60,6 +60,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
+      localStorage.removeItem("chatId");
       localStorage.removeItem("chat-app-user"); // Remove token from localStorage
     },
     loadUser: (state, action) => {

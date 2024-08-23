@@ -26,13 +26,13 @@ const MessageContent = () => {
   const [typingUsers, setTypingUsers] = useState([]);
 
   const { user } = useSelector((state) => state.auth);
-  const { chatId } = useSelector((state) => state.value);
+  const { chatId } = useSelector((state) => state.value) || {};
   const { messages } = useSelector((state) => state.message) || {};
 
    const { showScrollButton, scrollToBottom } =
      useScrollToBottom(chatContainerRef);
 
-  console.log(showScrollButton)
+  // console.log(showScrollButton)
 
   useEffect(() => {
     socket = io(ENDPOINT);
