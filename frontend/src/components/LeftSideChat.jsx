@@ -51,10 +51,10 @@ const LeftSideChat = () => {
   const handleChat = (id) => {
     // console.log(id);
     dispatch(setValue(id));
-    dispatch(setOpen(false))
+    dispatch(setOpen(false));
   };
 
-  const { data } = useSelector((state) => state.searchuser);
+  const { data, status } = useSelector((state) => state.searchuser);
   const { data: userchats, IsLoading } = useSelector((state) => state.userchat);
   // console.log(userchats);
   return (
@@ -118,21 +118,29 @@ const LeftSideChat = () => {
                     data={item}
                   />
                 ))}
-
               </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {/* {data?.map((item, index) => (
-                      <ChatCard key={index} data={item} />
-                    ))} */}
-              </div>
-            )}
+            ) : null}
           </div>
         ) : (
-          <div className="flex h-full flex-col gap-2">
-            {data?.map((item, index) => (
-              <ChatCard key={index} className={`${chatId}`} data={item} />
-            ))}
+          <div
+            className={`flex h-full flex-col gap-2 ${
+              data.length == 0 ? "justify-center items-center" : ""
+            }`}
+          >
+            {status === "succeeded" ? (
+              data.length > 0 ? (
+                data.map((item, index) => (
+                  <ChatCard key={index} className={`${chatId}`} data={item} />
+                ))
+              ) : (
+                <p>No such data</p>
+              )
+            ) : (
+              <img
+                src="../../public/Spinner@1x-1.0s-200px-200px.svg"
+                className="w-[5rem]"
+              />
+            )}
           </div>
         )}
       </div>

@@ -27,7 +27,7 @@ const MessageContent = () => {
 
   const { user } = useSelector((state) => state.auth);
   const { chatId } = useSelector((state) => state.value) || {};
-  const { messages } = useSelector((state) => state.message) || {};
+  const { messages,IsLoading } = useSelector((state) => state.message) || {};
 
    const { showScrollButton, scrollToBottom } =
      useScrollToBottom(chatContainerRef);
@@ -154,7 +154,6 @@ const MessageContent = () => {
 
   useEffect(() => {
     fetchmessage();
-
     selectedChatCompare = chatId?.chatid;
   }, [chatId?.chatid]);
 
@@ -194,7 +193,7 @@ const MessageContent = () => {
         ref={chatContainerRef}
         className=" flex-auto w-full h-full p-2 overflow-y-scroll scroll-pb-4 scrollbar-custom "
       >
-        <ScrollableChat messages={message} />
+        <ScrollableChat IsLoading={IsLoading} messages={message} />
 
         <span
           onClick={scrollToBottom}

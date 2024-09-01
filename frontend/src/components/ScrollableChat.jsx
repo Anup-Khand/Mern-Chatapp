@@ -8,9 +8,9 @@ import {
 import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
 import Zoom from "@mui/material/Zoom";
-import  { MsgImg } from "./ImageAvatar";
+import { MsgImg } from "./ImageAvatar";
 
-const ScrollableChat = ({ messages }) => {
+const ScrollableChat = ({ messages, IsLoading }) => {
   // console.log("this is from scroll", messages);
 
   const { user } = useSelector((state) => state.auth);
@@ -19,6 +19,7 @@ const ScrollableChat = ({ messages }) => {
   return (
     <div className="">
       {messages &&
+        IsLoading &&
         messages.map((msg, i) => {
           const sameSender = isSameSender(messages, msg, i, user._id);
           const lastMessage = isLastMessage(messages, i, user._id);
@@ -27,10 +28,7 @@ const ScrollableChat = ({ messages }) => {
           // );
 
           return (
-            <div
-              className="flex items-center max-w-full gap-2"
-              key={msg._id}
-            >
+            <div className="flex items-center max-w-full gap-2" key={msg._id}>
               {(sameSender || lastMessage) && (
                 <Tooltip
                   TransitionComponent={Zoom}

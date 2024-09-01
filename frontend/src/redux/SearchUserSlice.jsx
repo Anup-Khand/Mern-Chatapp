@@ -13,7 +13,7 @@ export const fetchSearchUser = createAsyncThunk(
     // const token = getState().auth.user;
     // console.log(token);
     try {
-      const response = await apiClient.post("/api/auth/getsearchusers", {
+      const response = await apiClient.post("/api/chat/searchuserfriends", {
         query: query,
       });
       console.log(response?.data);
@@ -30,9 +30,12 @@ export const fetchRequestSearchUser = createAsyncThunk(
     // const token = getState().auth.user;
     // console.log(token);
     try {
-      const response = await apiClient.post("/api/auth/getrequestsearchusers", {
-        query: query,
-      });
+      const response = await apiClient.post(
+        "/api/chat/searchuserexceptfriends",
+        {
+          query: query,
+        }
+      );
       console.log(response?.data);
       return response?.data;
     } catch (error) {

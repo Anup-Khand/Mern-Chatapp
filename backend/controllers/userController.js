@@ -126,12 +126,7 @@ module.exports.getRequestSearchUser = async (req, res) => {
         { firstname: { $regex: query, $options: "i" } },
         { lastname: { $regex: query, $options: "i" } },
       ],
-    }).find({ _id: { $nin: [...friendIds, userId] } });
-
-    // console.log(friendIds);
-    // const users = await searchedusers.find({
-    //   _id: { $nin: [...friendIds, userId] }, // Exclude friends and the user itself
-    // });
+    }).find({ _id: { $nin: [...friendIds, userId] } }).find();
     res.status(200).json(users);
   } catch (err) {
     console.log(err);

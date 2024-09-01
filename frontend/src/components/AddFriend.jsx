@@ -3,7 +3,11 @@ import ChatCard from "./ChatCard";
 import { useDispatch, useSelector } from "react-redux";
 import useDebounce from "../hooks/useDebounce";
 
-import { clearSearchResults, fetchRequestSearchUser } from "../redux/SearchUserSlice";
+import {
+  clearSearchResults,
+  fetchRequestSearchUser,
+  fetchSearchUser,
+} from "../redux/SearchUserSlice";
 
 import {
   ArrowLeftIcon,
@@ -21,7 +25,7 @@ const AddFriend = ({ data }) => {
   useEffect(() => {
     if (debouncedQuery) {
       // API call or search function here
-       dispatch(fetchRequestSearchUser(debouncedQuery));
+      dispatch(fetchRequestSearchUser(debouncedQuery));
       console.log("Searching for:", debouncedQuery);
     } else {
       dispatch(clearSearchResults());
@@ -31,8 +35,8 @@ const AddFriend = ({ data }) => {
     };
   }, [debouncedQuery, dispatch]);
 
-  const { data: data1 } = useSelector((state) => state.searchuser)
-  console.log(data1)
+  const { data: data1,status } = useSelector((state) => state.searchuser);
+  // console.log(data1);
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -84,21 +88,27 @@ const AddFriend = ({ data }) => {
             {data?.map((item) => (
               <ChatCard key={item?._id} data={item} request />
             ))}
-            <ChatCard />
-            <ChatCard />
-            <ChatCard />
-            <ChatCard />
-            <ChatCard />
-            <ChatCard />
-            <ChatCard />
-            <ChatCard />
-            <ChatCard />
           </div>
         ) : (
-          <div className="flex h-full flex-col gap-2">
-            {data1?.map((item, index) => (
-                    <ChatCard key={index} data={item} request/>
-                  ))}
+          <div
+            className={`flex h-full flex-col gap-2 ${
+              data1.length == 0 ? "justify-center items-center" : ""
+            }`}
+          >
+            {status === "succeeded" ? (
+              data1.length > 0 ? (
+                data1.map((item, index) => (
+                  <ChatCard key={index} request data={item} />
+                ))
+              ) : (
+                <p>No such data</p>
+              )
+            ) : (
+              <img
+                src="../../public/Spinner@1x-1.0s-200px-200px.svg"
+                className="w-[5rem]"
+              />
+            )}
           </div>
         )}
       </div>

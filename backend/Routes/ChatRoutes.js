@@ -7,6 +7,8 @@ const {
   SendRequest,
   getallfriendrequest,
   AcceptRequest,
+  SearchUserFriends,
+  SearchUsersExceptFriends,
 } = require("../controllers/chatController");
 const requireAuth = require("../middleware/requireAuth");
 
@@ -19,5 +21,7 @@ router.get("/alluserexpectfriend", requireAuth, getAllUsersExceptFriends);
 router.get("/getallfriendrequest", requireAuth, getallfriendrequest);
 router.post("/sendrequest", requireAuth, SendRequest);
 router.post("/acceptfriendrequest", requireAuth, AcceptRequest);
+router.post("/searchuserfriends", requireAuth, SearchUserFriends);
+router.post("/searchuserexceptfriends", requireAuth, SearchUsersExceptFriends);
 
 module.exports = router;

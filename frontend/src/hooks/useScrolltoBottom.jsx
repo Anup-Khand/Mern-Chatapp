@@ -26,7 +26,10 @@ const useScrollToBottom = (ref) => {
     if (ref.current) {
       ref.current.addEventListener("scroll", handleScroll);
       return () => {
-        ref.current.removeEventListener("scroll", handleScroll);
+         if (ref.current) {
+           // Check if ref.current is not null
+           ref.current.removeEventListener("scroll", handleScroll);
+         }
       };
     }
   }, [ref]);

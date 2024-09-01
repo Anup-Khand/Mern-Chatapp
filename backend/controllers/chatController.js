@@ -95,27 +95,22 @@ const getFriendIds = async (userId) => {
 };
 
 module.exports.getAllUsersExceptFriends = async (req, res) => {
-  // const userId = req.user._id;
-  // const friendIds = await getFriendIds(userId);
-  // // console.log(friendIds);
-  // const users = await User.find({
-  //   _id: { $nin: [...friendIds, userId] }, // Exclude friends and the user itself
-  // });
-
-  // res.status(200).json(users);
-
   try {
     const userId = req.user._id;
-
+    // console.log("this is user", userId);
     // Step 1: Get the IDs of the user's friends
     const friendIds = await getFriendIds(userId);
-    console.log(friendIds);
+    // console.log("this is friend", friendIds);
 
+    // const ObjectId = mongoose.Types.ObjectId;
+    const friendIdsAsObjectIds = friendIds.map((id) =>
+     new mongoose.Types.ObjectId(id)
+    );
     // Step 2: Aggregate the chat status of all users except friends and the user itself
     const usersWithChatStatus = await User.aggregate([
       {
         $match: {
-          _id: { $nin: [...friendIds, userId] },
+          _id: { $nin: [...friendIdsAsObjectIds, userId] },
           // Exclude friends and the user itself
         },
       },
@@ -148,7 +143,7 @@ module.exports.getAllUsersExceptFriends = async (req, res) => {
       {
         $unwind: {
           path: "$chatStatus",
-          preserveNullAndEmptyArrays: false, // Preserve users with no chat status
+          preserveNullAndEmptyArrays: true, // Preserve users with no chat status
         },
       },
       {
@@ -156,7 +151,8 @@ module.exports.getAllUsersExceptFriends = async (req, res) => {
           _id: 1,
           firstname: 1,
           lastname: 1,
-          avatarImage: 1, // Assuming the User model has a name field
+          avatarImage: 1,
+          // Assuming the User model has a name field
           chatStatus: {
             $ifNull: ["$chatStatus.status", "no chat"], // Default to "no chat" if there's no chat status
           },
@@ -164,8 +160,8 @@ module.exports.getAllUsersExceptFriends = async (req, res) => {
       },
     ]);
 
-    // Step 3: Return the result
-    console.log(usersWithChatStatus);
+    // // Step 3: Return the result
+    // console.log(usersWithChatStatus);
     res.status(200).json(usersWithChatStatus);
   } catch (error) {
     console.error(error);
@@ -288,6 +284,162 @@ module.exports.AcceptRequest = async (req, res) => {
   }
 };
 
-module.exports.getPendingRequest = async (req, res) => {
+// module.exports.getPendingRequest = async (req, res) => {
+//   const userId = req.user._id;
+// };
+
+module.exports.SearchUserFriends = async (req, res) => {
+  const { query } = req.body;
   const userId = req.user._id;
+
+  try {
+    const users = await ChatModel.aggregate([
+      {
+        $match: {
+          members: userId,
+          status: "accepted",
+        },
+      },
+
+      // Unwind the members array
+      { $unwind: "$members" },
+
+      // Match to exclude the logged-in user
+      { $match: { members: { $ne: userId } } },
+
+      // Lookup to populate member details
+      {
+        $lookup: {
+          from: "users", // The name of the User collection
+          localField: "members",
+          foreignField: "_id",
+          as: "memberDetails",
+        },
+      },
+
+      // Unwind the member details array
+      { $unwind: "$memberDetails" },
+
+      {
+        // Match users whose first name or last name matches the query (case-insensitive)
+        $match: {
+          $or: [
+            { "memberDetails.firstname": { $regex: query, $options: "i" } },
+            { "memeberDetails.lastname": { $regex: query, $options: "i" } },
+          ],
+        },
+      },
+
+      // Group back to the original chat structure
+      {
+        $project: {
+          _id: 1,
+          memberDetails: 1,
+          // otherMembers: { $push: "$memberDetails" },
+        },
+      },
+    ]);
+    const formattedRequests = users.map((req) => ({
+      ...req.memberDetails,
+    }));
+
+    return res.status(200).json(formattedRequests);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+module.exports.SearchUsersExceptFriends = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { query } = req.body;
+    const friendIds = await getFriendIds(userId);
+    // console.log("this is friend", friendIds);
+
+    // const ObjectId = mongoose.Types.ObjectId;
+    const friendIdsAsObjectIds = friendIds.map((id) =>
+     new mongoose.Types.ObjectId(id)
+    );
+    // Step 2: Aggregate the chat status of all users except friends and the user itself
+    const usersWithChatStatus = await User.aggregate([
+      {
+        $match: {
+          _id: { $nin: [...friendIdsAsObjectIds, userId] },
+          // Exclude friends and the user itself
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          firstname: 1,
+          lastname: 1,
+          avatarImage: 1,
+        },
+      },
+      {
+        // Match users whose first name or last name matches the query (case-insensitive)
+        $match: {
+          $or: [
+            {
+              firstname: { $regex: query, $options: "i" },
+            },
+            {
+              lastname: { $regex: query, $options: "i" },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "chats", // Collection name of ChatModel
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $in: ["$$userId", "$members"] }, // Ensure the user is a member of the chat
+                    { $in: [userId, "$members"] },
+                    { $ne: ["$status", "accepted"] }, // Ensure the logged-in user is also a member
+                  ],
+                },
+              },
+            },
+
+            {
+              $project: {
+                status: 1,
+                latestMessage: 1,
+              },
+            },
+          ],
+          as: "chatStatus",
+        },
+      },
+      {
+        $unwind: {
+          path: "$chatStatus",
+          preserveNullAndEmptyArrays: true, // Preserve users with no chat status
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          firstname: 1,
+          lastname: 1,
+          avatarImage: 1,
+          chatStatus: {
+            $ifNull: ["$chatStatus.status", "no chat"], // Default to "no chat" if there's no chat status
+          },
+        },
+      },
+    ]);
+
+    // // Step 3: Return the result
+    // console.log(usersWithChatStatus);
+    res.status(200).json(usersWithChatStatus);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
